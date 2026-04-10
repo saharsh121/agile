@@ -1,8 +1,17 @@
-num = 10
+from flask import Flask, request
 
-factorial = 1
+app = Flask(__name__)
 
-for i in range(1, num + 1):
-    factorial *= i
+@app.route('/')
+def home():
+    return "Factorial API Running"
 
-print("Factorial of", num, "is", factorial)
+@app.route('/factorial')
+def factorial():
+    n = int(request.args.get('n'))
+    fact = 1
+    for i in range(1, n+1):
+        fact *= i
+    return str(fact)
+
+app.run(host='0.0.0.0', port=3000)

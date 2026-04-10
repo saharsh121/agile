@@ -1,23 +1,41 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "saharsh121/agile_lab:latest"
+    }
+
     stages {
-        stage('Run Python Script (Local)') {
-            steps {
-                bat 'python python.py'
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t agile-app .'
+                bat 'docker build -t %DOCKER_IMAGE% .'
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Login to Docker Hub') {
             steps {
-                bat 'docker run agile-app'
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                bat 'docker push %DOCKER_IMAGE%'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                bat 'kubectl apply -f deployment.yaml'
+                bat 'kubectl apply -f service.yaml'
             }
         }
     }
-} 
+}
