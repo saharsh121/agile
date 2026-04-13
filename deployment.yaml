@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        app: agile-lab
+        app: agile
     spec:
       containers:
       - name: agile-container
